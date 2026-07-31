@@ -58,10 +58,11 @@ jobs:
             echo "signing_mode=secret-keystore" >> "$GITHUB_OUTPUT"
           else
             storepass="gflowd-store-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
-            keypass="gflowd-key-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+            keypass="$storepass"
             alias="gflowd"
             keytool -genkeypair \
               -keystore "$RUNNER_TEMP/release.keystore" \
+              -storetype JKS \
               -storepass "$storepass" \
               -keypass "$keypass" \
               -alias "$alias" \
