@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.prodject.gflow">
+
+    <uses-permission android.permission.INTERNET" />
+    <uses-permission android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android.permission.VIBRATE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="GFlowD Monji"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.GFlowD">
+
+        <activity
+            android:name=".GFlowMainActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android.intent.action.MAIN" />
+                <category android.intent.category.LAUNCHER" />
+                <category android.intent.category.HOME" />
+                <category android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+    </application>
+
+</manifest>
