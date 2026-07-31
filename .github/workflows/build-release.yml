@@ -88,7 +88,8 @@ jobs:
       - name: Prepare APK Artifact
         run: |
           mkdir -p artifacts
-          cp app/build/outputs/apk/release/app-release.apk "artifacts/GFlowD-${{ github.ref_name }}-signed.apk"
+          version="${GITHUB_REF_NAME#v}"
+          cp app/build/outputs/apk/release/app-release.apk "artifacts/gflow-design-${version}.apk"
 
       - name: Upload APK Build Artifact
         uses: actions/upload-artifact@v4
