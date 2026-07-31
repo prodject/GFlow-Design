@@ -6,6 +6,11 @@ android {
     namespace 'com.prodject.gflow'
     compileSdk 35
 
+    def hasReleaseSigning = System.getenv("ANDROID_KEYSTORE_PATH") &&
+            System.getenv("ANDROID_KEYSTORE_PASSWORD") &&
+            System.getenv("ANDROID_KEY_ALIAS") &&
+            System.getenv("ANDROID_KEY_PASSWORD")
+
     defaultConfig {
         applicationId "com.prodject.gflow"
         minSdk 30
@@ -16,12 +21,27 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        if (hasReleaseSigning) {
+            release {
+                storeFile file(System.getenv("ANDROID_KEYSTORE_PATH"))
+                storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD")
+                keyAlias System.getenv("ANDROID_KEY_ALIAS")
+                keyPassword System.getenv("ANDROID_KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            if (hasReleaseSigning) {
+                signingConfig signingConfigs.release
+            }
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17

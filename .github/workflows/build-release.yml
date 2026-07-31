@@ -2,8 +2,6 @@ name: Build & Release GFlowD APK
 
 on:
   push:
-    branches:
-      - main
     tags:
       - 'v*'
   workflow_dispatch:
@@ -13,7 +11,7 @@ permissions:
 
 jobs:
   build:
-    name: Build Android APK & Publish Release
+    name: Build Signed Android APK & Publish Release
     runs-on: ubuntu-latest
 
     steps:
@@ -34,31 +32,66 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x gradlew
 
+      - name: Prepare signing keystore
+        id: signing
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -n "$ANDROID_KEYSTORE_BASE64" ] && [ -n "$ANDROID_KEYSTORE_PASSWORD" ] && [ -n "$ANDROID_KEY_ALIAS" ] && [ -n "$ANDROID_KEY_PASSWORD" ]; then
+            echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/release.keystore"
+            echo "keystore_path=$RUNNER_TEMP/release.keystore" >> "$GITHUB_OUTPUT"
+            echo "keystore_password=$ANDROID_KEYSTORE_PASSWORD" >> "$GITHUB_OUTPUT"
+            echo "key_alias=$ANDROID_KEY_ALIAS" >> "$GITHUB_OUTPUT"
+            echo "key_password=$ANDROID_KEY_PASSWORD" >> "$GITHUB_OUTPUT"
+            echo "signing_mode=secret-keystore" >> "$GITHUB_OUTPUT"
+          else
+            storepass="gflowd-store-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+            keypass="gflowd-key-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+            alias="gflowd"
+            keytool -genkeypair \
+              -keystore "$RUNNER_TEMP/release.keystore" \
+              -storepass "$storepass" \
+              -keypass "$keypass" \
+              -alias "$alias" \
+              -keyalg RSA \
+              -keysize 2048 \
+              -validity 9125 \
+              -dname "CN=GFlowD, OU=GitHub Actions, O=prodject, L=NA, S=NA, C=US"
+            echo "keystore_path=$RUNNER_TEMP/release.keystore" >> "$GITHUB_OUTPUT"
+            echo "keystore_password=$storepass" >> "$GITHUB_OUTPUT"
+            echo "key_alias=$alias" >> "$GITHUB_OUTPUT"
+            echo "key_password=$keypass" >> "$GITHUB_OUTPUT"
+            echo "signing_mode=generated-keystore" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Build Release APK
+        env:
+          ANDROID_KEYSTORE_PATH: ${{ steps.signing.outputs.keystore_path }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ steps.signing.outputs.keystore_password }}
+          ANDROID_KEY_ALIAS: ${{ steps.signing.outputs.key_alias }}
+          ANDROID_KEY_PASSWORD: ${{ steps.signing.outputs.key_password }}
         run: ./gradlew assembleRelease --stacktrace
 
       - name: Prepare APK Artifact
         run: |
           mkdir -p artifacts
-          cp app/build/outputs/apk/release/*.apk artifacts/GFlowD-Monji-13.2-release.apk
+          cp app/build/outputs/apk/release/app-release.apk "artifacts/GFlowD-${{ github.ref_name }}-signed.apk"
 
       - name: Upload APK Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: GFlowD-APK
+          name: GFlowD-signed-APK
           path: artifacts/*.apk
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
         with:
           name: Release ${{ github.ref_name }}
           body: |
-            Automated Release Build for GFlowD (13.2" Vertical Automotive Head Unit).
-            
-            - Tesla-style 3-Zone Ergonomic Layout
-            - Complete 15 Functional Groups coverage
-            - Native 2D Canvas Geely Cityray Model Visualizer
-            - Vosk Offline Voice Assistant & AdaptAPI Diagnostics
+            Automated signed APK build for tag `${{ github.ref_name }}`.
+            Signing mode: `${{ steps.signing.outputs.signing_mode }}`.
           files: |
             artifacts/*.apk
