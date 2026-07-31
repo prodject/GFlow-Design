@@ -79,7 +79,7 @@ public class GTopStatusBarView extends LinearLayout {
         voiceIconView.setColorFilter(GColors.ACCENT_GREEN);
         int iconSize = GDimens.dpToPx(context, 28);
         LayoutParams voiceParams = new LayoutParams(iconSize, iconSize);
-        voiceParams.marginEnd = GDimens.dpToPx(context, GDimens.PADDING_SMALL_DP);
+        voiceParams.setMarginEnd(GDimens.dpToPx(context, GDimens.PADDING_SMALL_DP));
         voiceIconView.setLayoutParams(voiceParams);
         voiceIconView.setOnClickListener(v -> {
             if (actionListener != null) actionListener.onVoiceClick();

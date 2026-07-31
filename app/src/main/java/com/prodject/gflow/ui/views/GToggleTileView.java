@@ -46,7 +46,7 @@ public class GToggleTileView extends LinearLayout {
         iconView = new ImageView(context);
         int iconSize = GDimens.dpToPx(context, 32);
         LayoutParams iconParams = new LayoutParams(iconSize, iconSize);
-        iconParams.marginEnd = GDimens.dpToPx(context, GDimens.PADDING_MEDIUM_DP);
+        iconParams.setMarginEnd(GDimens.dpToPx(context, GDimens.PADDING_MEDIUM_DP));
         iconView.setLayoutParams(iconParams);
         iconView.setColorFilter(GColors.ICON_INACTIVE);
 

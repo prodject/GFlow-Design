@@ -129,7 +129,7 @@ public class HomeHubView extends ScrollView {
     private GCardView createAdasCard(Context context) {
         GCardView card = new GCardView(context);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f);
-        params.marginStart = GDimens.dpToPx(context, GDimens.PADDING_MEDIUM_DP);
+        params.setMarginStart(GDimens.dpToPx(context, GDimens.PADDING_MEDIUM_DP));
         card.setLayoutParams(params);
 
         TextView title = new TextView(context);
