@@ -37,25 +37,10 @@ jobs:
       - name: Build Release APK
         run: ./gradlew assembleRelease --stacktrace
 
-      - name: Sign APK (if secret provided)
-        id: sign_app
-        uses: r2d2-tools/sign-android-release@v1
-        if: secrets.KEYSTORE_BASE64 != ''
-        with:
-          releaseDirectory: app/build/outputs/apk/release
-          signingKeyBase64: ${{ secrets.KEYSTORE_BASE64 }}
-          alias: ${{ secrets.KEY_ALIAS }}
-          keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
-          keyPassword: ${{ secrets.KEY_PASSWORD }}
-
       - name: Prepare APK Artifact
         run: |
           mkdir -p artifacts
-          if ls app/build/outputs/apk/release/*-signed.apk 1> /dev/null 2>&1; then
-            cp app/build/outputs/apk/release/*-signed.apk artifacts/GFlowD-Monji-13.2-release-signed.apk
-          elif ls app/build/outputs/apk/release/*.apk 1> /dev/null 2>&1; then
-            cp app/build/outputs/apk/release/*.apk artifacts/GFlowD-Monji-13.2-release.apk
-          fi
+          cp app/build/outputs/apk/release/*.apk artifacts/GFlowD-Monji-13.2-release.apk
 
       - name: Upload APK Build Artifact
         uses: actions/upload-artifact@v4
@@ -63,12 +48,11 @@ jobs:
           name: GFlowD-APK
           path: artifacts/*.apk
 
-      - name: Create GitHub Release & Upload APK
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main'
+        if: startsWith(github.ref, 'refs/tags/')
         with:
-          tag_name: ${{ github.ref_name == 'main' && 'v1.0.0-latest' || github.ref_name }}
-          name: GFlowD Monji 13.2 Vertical Release
+          name: Release ${{ github.ref_name }}
           body: |
             Automated Release Build for GFlowD (13.2" Vertical Automotive Head Unit).
             
@@ -78,5 +62,3 @@ jobs:
             - Vosk Offline Voice Assistant & AdaptAPI Diagnostics
           files: |
             artifacts/*.apk
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
