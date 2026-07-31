@@ -21,6 +21,10 @@ import com.prodject.gflow.ui.theme.GTypography;
  */
 public class GBottomDockView extends LinearLayout {
 
+    private static final class TextHolder {
+        private TextView view;
+    }
+
     private float driverTemp = 21.5f;
     private float passTemp = 22.0f;
     private int driverSeatWarmLevel = 0; // 0, 1, 2, 3
@@ -68,37 +72,45 @@ public class GBottomDockView extends LinearLayout {
         LinearLayout driverTempLayout = createTempWidget(context, true);
 
         // 2. DRIVER SEAT HEATING / VENTILATION TOGGLE
+        TextHolder driverSeatHolder = new TextHolder();
         driverSeatText = createDockButton(context, "🔥 0", v -> {
             driverSeatWarmLevel = (driverSeatWarmLevel + 1) % 4;
-            driverSeatText.setText("🔥 " + driverSeatWarmLevel);
-            driverSeatText.setTextColor(driverSeatWarmLevel > 0 ? GColors.ACCENT_ORANGE : GColors.TEXT_SECONDARY);
+            driverSeatHolder.view.setText("🔥 " + driverSeatWarmLevel);
+            driverSeatHolder.view.setTextColor(driverSeatWarmLevel > 0 ? GColors.ACCENT_ORANGE : GColors.TEXT_SECONDARY);
             if (listener != null) listener.onDriverSeatToggle(driverSeatWarmLevel);
         });
+        driverSeatHolder.view = driverSeatText;
 
         // 3. FRONT DEFROST QUICK TOGGLE
+        TextHolder frontDefrostHolder = new TextHolder();
         TextView frontDefrostBtn = createDockButton(context, "🌬️ ЛОБ", v -> {
             isFrontDefrostActive = !isFrontDefrostActive;
-            frontDefrostBtn.setTextColor(isFrontDefrostActive ? GColors.ACCENT_RED : GColors.TEXT_SECONDARY);
+            frontDefrostHolder.view.setTextColor(isFrontDefrostActive ? GColors.ACCENT_RED : GColors.TEXT_SECONDARY);
             if (listener != null) listener.onFrontDefrostToggle(isFrontDefrostActive);
         });
+        frontDefrostHolder.view = frontDefrostBtn;
 
         // 4. CENTRAL HOME BUTTON (GFlowD Center)
         LinearLayout homeBtn = createCentralHomeButton(context);
 
         // 5. REAR DEFROST & MIRRORS
+        TextHolder rearDefrostHolder = new TextHolder();
         TextView rearDefrostBtn = createDockButton(context, "♨️ З А Д", v -> {
             isRearDefrostActive = !isRearDefrostActive;
-            rearDefrostBtn.setTextColor(isRearDefrostActive ? GColors.ACCENT_ORANGE : GColors.TEXT_SECONDARY);
+            rearDefrostHolder.view.setTextColor(isRearDefrostActive ? GColors.ACCENT_ORANGE : GColors.TEXT_SECONDARY);
             if (listener != null) listener.onRearDefrostToggle(isRearDefrostActive);
         });
+        rearDefrostHolder.view = rearDefrostBtn;
 
         // 6. PASSENGER SEAT HEATING TOGGLE
+        TextHolder passSeatHolder = new TextHolder();
         passSeatText = createDockButton(context, "🔥 0", v -> {
             passSeatWarmLevel = (passSeatWarmLevel + 1) % 4;
-            passSeatText.setText("🔥 " + passSeatWarmLevel);
-            passSeatText.setTextColor(passSeatWarmLevel > 0 ? GColors.ACCENT_ORANGE : GColors.TEXT_SECONDARY);
+            passSeatHolder.view.setText("🔥 " + passSeatWarmLevel);
+            passSeatHolder.view.setTextColor(passSeatWarmLevel > 0 ? GColors.ACCENT_ORANGE : GColors.TEXT_SECONDARY);
             if (listener != null) listener.onPassSeatToggle(passSeatWarmLevel);
         });
+        passSeatHolder.view = passSeatText;
 
         // 7. PASSENGER TEMP REGULATION (- / Temp / +)
         LinearLayout passTempLayout = createTempWidget(context, false);
